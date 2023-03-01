@@ -1,5 +1,6 @@
-
 # Simple Iris Flower Prediction
+
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://elliottfairhall-iris-flower-prediction-main-e0ikd7.streamlit.app/)
 
 This project is a machine learning application for predicting the type of iris based on measurements of its petal and sepal length and width. Utilizing a combination of modules such as sklearn, numpy, and pandas, we train a model to accurately classify Irises into one of three species based on their physical characteristics. The project could prove to be a useful tool for botanists and other interested individuals to quickly and accurately identify different types of Irises.
 
