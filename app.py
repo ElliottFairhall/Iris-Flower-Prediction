@@ -1,67 +1,45 @@
+"""Iris species classifier: entry point."""
+
 import streamlit as st
 
-from src.model import IrisModel
+from src.model import FOLDS, get_accuracy, get_model
 from src.ui import (
     render_config,
-    render_header,
-    render_prediction_result,
+    render_context,
+    render_footer,
+    render_intro,
+    render_probabilities,
+    render_result,
     render_sidebar,
+    render_topbar,
 )
 
 
-def main():
-    """
-    Main entry point for the Iris Dynamics application.
-    Orchestrates the UI rendering and model inference.
-    """
-    # 1. Page Configuration and CSS
+def main() -> None:
+    """Render the page. Predictions update live as the sliders move."""
     render_config()
+    render_topbar()
 
-    # 2. Premium Header
-    render_header()
+    model = get_model()
+    reference = model.dataset_frame()
+    render_intro(get_accuracy(), len(reference), FOLDS)
 
-    # 3. Sidebar Input Workspace
-    input_df = render_sidebar()
+    flower = render_sidebar()
+    proba = model.predict_proba(flower)
+    names = model.get_target_names()
+    best = int(proba[0].argmax())
 
-    # 4. Tabs for Project Clarity
-    tab1, tab2 = st.tabs(["Project Overview", "Analysis Workspace"])
+    render_result(str(names[best]), float(proba[0][best]))
 
-    with tab1:
-        st.markdown(
-            """
-        ### Project Outline
-        This project utilizes machine learning to classify Iris flowers into one of three species
-        (*Setosa*, *Versicolor*, or *Virginica*) based on morphological measurements.
+    chart_left, chart_right = st.columns(2, gap="large")
+    with chart_left:
+        st.caption("Probability by species")
+        render_probabilities(names, proba)
+    with chart_right:
+        st.caption("Where your flower sits among 150 measured irises")
+        render_context(reference, flower)
 
-        ### Methodology
-        - **Model:** Random Forest Classifier trained on the classic Iris dataset.
-        - **Interface:** Real-time parameter adjustment via sidebar sliders.
-        - **Output:** Instant classification with probability confidence metrics.
-        """
-        )
-
-    with tab2:
-        st.markdown("### 📝 Analysis Workspace")
-        st.info(
-            "Adjust the Bio-Signals in the sidebar and click "
-            "'Process Intelligence' to generate botanical insights."
-        )
-
-        if st.button("Process Intelligence"):
-            with st.spinner("Analyzing botanical signatures..."):
-                model = IrisModel()
-                model.train()  # Ensures model is loaded and trained
-
-                prediction = model.predict(input_df)
-                prediction_proba = model.predict_proba(input_df)
-                target_names = model.get_target_names()
-
-                # Render Results
-                render_prediction_result(prediction, prediction_proba, target_names)
-                st.success("Intelligence processing complete.")
-        else:
-            st.markdown("---")
-            st.caption("Waiting for signal input...")
+    render_footer()
 
 
 if __name__ == "__main__":
